@@ -30,6 +30,7 @@ def send_to_printer(header, code, syntax="text", filename="AMPPZ 2017"):
 	cmd = "a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%( pretty_print, filename , header, footer)
 	p = Popen(cmd,shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE)
 	output, errors = p.communicate(input=code.encode("iso-8859-2", "replace"))
+	print(output)
 	print(errors)
 
 
