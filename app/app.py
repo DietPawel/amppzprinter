@@ -18,12 +18,14 @@ def send_to_printer(header, code, syntax="text"):
 		'cpp': 'c++',
 		'pas': 'pascal',
 	}
+	with open('code','wb') as codefile:
+		codefile.write(code.encode("iso-8859-2", "replace"))
 	a2ps_lang = LANG_A2PS.get(syntax, None)
 	pretty_print = ""
 	if a2ps_lang is not None:
 		pretty_print = "-E{}".format(a2ps_lang)
-	res = os.system("echo \"%s\" | a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%
-		(code.encode("iso-8859-2", "replace"),pretty_print, "hardcoded filename", header, footer)
+	res = os.system("a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" code | lp "%
+		( pretty_print, "hardcoded filename", header, footer)
 	)
 	"""cmd = ["/usr/bin/a2ps","", pretty_print, "-XISO-8859-2",
 		"--stdin={}".format("test"),
@@ -63,13 +65,13 @@ def show_form():
 ### print form contents
 @app.route('/print/', methods=['POST'])
 def print_form():
-	print(request.form)
+	#print(request.form)
 	code = request.form.get('code')
 	syntax = request.form.get('syntax')
 	if code is None or syntax is None:
 		abort(400)
 	print(code+syntax)
-	#send_to_printer(request.remote_addr,code,syntax)
+	send_to_printer(request.remote_addr,code,syntax)
 	return make_response('query ok')
 
 
