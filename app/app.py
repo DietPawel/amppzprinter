@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 def send_to_printer(header, code, syntax="text", filename="AMPPZ 2017"):
 	#header = "{} -- sala {}, komputer {}".format(header,"","")
+	filename = " "+re.sub('[^0-9a-zA-Z.]+', '', filename)
 	footer = "{}".format(datetime.datetime.fromtimestamp(time.time()).strftime("%d.%m.%Y %X"))
 	header, footer = unidecode(header), unidecode(footer)
 	with open('code','wb') as codefile:
@@ -20,13 +21,15 @@ def send_to_printer(header, code, syntax="text", filename="AMPPZ 2017"):
 		'cpp': 'c++',
 		'pas': 'pascal',
 	}
+	print(filename)
 	a2ps_lang = LANG_A2PS.get(syntax, None)
 	pretty_print = ""
 	if a2ps_lang is not None:
 		pretty_print = "-E{}".format(a2ps_lang)
 	res = os.system("cat code | a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%
-		( pretty_print, filename, header, footer)
+		( pretty_print, filename , header, footer)
 	)
+	os.system('rm %s'%filename)
 	return res
 
 @app.route('/', methods=['GET'])
@@ -50,6 +53,7 @@ def show_form():
 		<option value="text">text</option>
 
 	</select>
+	<input type="text" name="filename" placeholder="filename"></input>
 	</p>
 	<input type="submit"></input>
 </form>
@@ -69,7 +73,7 @@ def print_form():
 	if code is None or syntax is None:
 		abort(400)
 	#print(code+syntax)
-	res = send_to_printer(request.remote_addr,code,syntax)
+	res = send_to_printer(request.remote_addr,code,syntax,filename)
 	return make_response('query result: '+str(res))
 
 
