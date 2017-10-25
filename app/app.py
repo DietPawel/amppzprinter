@@ -1,6 +1,7 @@
 from flask import Flask, make_response, abort ,request
 import datetime,time, os, re
 from unidecode import unidecode
+from subprocess import Popen, PIPE, STDOUT
 
 DEBUG = False
 HOST = "localhost"
@@ -14,23 +15,23 @@ def send_to_printer(header, code, syntax="text", filename="AMPPZ 2017"):
 	filename = " "+re.sub('[^0-9a-zA-Z.]+', '', filename)
 	footer = "{}".format(datetime.datetime.fromtimestamp(time.time()).strftime("%d.%m.%Y %X"))
 	header, footer = unidecode(header), unidecode(footer)
-	with open('code','wb') as codefile:
-		codefile.write(code.encode("iso-8859-2", "replace"))
+
 	LANG_A2PS = {
 		'c': 'c',
 		'cpp': 'c++',
 		'pas': 'pascal',
 	}
-	print(filename)
 	a2ps_lang = LANG_A2PS.get(syntax, None)
+
 	pretty_print = ""
 	if a2ps_lang is not None:
 		pretty_print = "-E{}".format(a2ps_lang)
-	res = os.system("cat code | a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%
-		( pretty_print, filename , header, footer)
-	)
-	os.system('rm %s'%filename)
-	return res
+
+	cmd = "a2ps %s -XISO-8859-2 --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%( pretty_print, filename , header, footer)
+	p = Popen(cmd,shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+	output, errors = p.communicate(input=code.encode("iso-8859-2", "replace"))
+	print(errors)
+
 
 @app.route('/', methods=['GET'])
 def root():
@@ -73,8 +74,8 @@ def print_form():
 	if code is None or syntax is None:
 		abort(400)
 	#print(code+syntax)
-	res = send_to_printer(request.remote_addr,code,syntax,filename)
-	return make_response('query result: '+str(res))
+	send_to_printer(request.remote_addr,code,syntax,filename)
+	return make_response('query result: ')
 
 
 ### other
