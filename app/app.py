@@ -46,11 +46,11 @@ def show_form():
     return make_response("""
 <form method="post">
 	<p><h3>tresc</h3>
-		<input type="text" name="code"></input>
+		<input type="contents" name="code"></input>
 		<!--<textarea rows="16" cols="80" name="text"></textarea>-->
 	</p>
 	<p><h3>syntax</h3>
-	<select name="syntax">
+	<select name="lang">
 		<option value="cpp">cpp</option>
 		<option value="c">c</option>
 		<option value="pas">pas</option>
@@ -66,8 +66,8 @@ def show_form():
 @app.route('/print/', methods=['POST'])
 def print_form():
 	#print(request.form)
-	code = request.form.get('code')
-	syntax = request.form.get('syntax')
+	code = request.form.get('contents')
+	syntax = request.form.get('lang')
 	if code is None or syntax is None:
 		abort(400)
 	print(code+syntax)
