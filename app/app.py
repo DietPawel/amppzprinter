@@ -10,8 +10,10 @@ SOLVE = '127.0.0.1'
 
 app = Flask(__name__)
 
-def send_to_printer(header, code, syntax="text", filename="AMPPZ 2017"):
-	#header = "{} -- sala {}, komputer {}".format(header,"","")
+def send_to_printer( code, syntax="text", filename="AMPPZ 2017", team_name="", team_ip=""):
+	team_ip = re.sub('[^0-9.]+', '', team_ip)
+	team_name = re.sub('[^0-9a-zA-Z._-]+', '', team_name)
+	header = "team: {},\t komputer: {}".format(team_name,team_ip)
 	filename = " "+re.sub('[^0-9a-zA-Z.]+', '', filename)
 	footer = "{}".format(datetime.datetime.fromtimestamp(time.time()).strftime("%d.%m.%Y %X"))
 	header, footer = unidecode(header), unidecode(footer)
@@ -47,7 +49,8 @@ def show_form():
 		<input type="text" name="content"></input>
 		<!--<textarea rows="16" cols="80" name="text"></textarea>-->
 	</p>
-	<p><h3>syntax</h3>
+	<p><h3>lang</h3>
+	<input type="text" name="filename" placeholder="filename"></input>
 	<select name="lang">
 		<option value="cpp">c++</option>
 		<option value="c">c</option>
@@ -55,7 +58,10 @@ def show_form():
 		<option value="text">text</option>
 
 	</select>
-	<input type="text" name="filename" placeholder="filename"></input>
+	</p>
+	<p><h3>team</h3>
+	<input type="text" name="ip" placeholder="ip teamu"></input>
+	<input type="text" name="name" placeholder="nazwa teamu"></input>
 	</p>
 	<input type="submit"></input>
 </form>
@@ -67,16 +73,16 @@ def print_form():
 	if(not request.remote_addr == SOLVE):
 		abort(400)
 	print(request.form)
-	code = request.form.get('content')
-	syntax = request.form.get('lang')
-	filename = request.form.get('filename')
-	team_ip = request.form.get('ip')
-	team_name = request.form.get('name')
+	code = request.form.get('content') or None
+	syntax = request.form.get('lang') or None
+	filename = request.form.get('filename') or None
+	team_ip = request.form.get('ip') or ""
+	team_name = request.form.get('name') or ""
 	if code is None or syntax is None:
 		abort(400)
 	#print(code+syntax)
-	send_to_printer(request.remote_addr,code,syntax,filename)
-	return make_response('query result: ')
+	send_to_printer(code,syntax,filename, team_name, team_ip)
+	return make_response('ok')
 
 
 ### other
