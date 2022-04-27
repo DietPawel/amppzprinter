@@ -56,7 +56,7 @@ def send_to_printer( code, syntax="text", filename="printout", team_name="", tea
 	if a2ps_lang is not None:
 		pretty_print = "-E{}".format(a2ps_lang)
 
-	cmd = "a2ps %s -XISO-8859-2 --tabsize=4 --pages=1-%d --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" | lp "%( pretty_print, MAX_PAGES, filename , header, footer)
+	cmd = "a2ps %s -XISO-8859-2 --tabsize=4 --pages=1-%d --stdin=\"%s\" --header=\"%s\" --left-footer=\"%s\" "%( pretty_print, MAX_PAGES, filename , header, footer)
 	p = Popen(cmd,shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE)
 	output, errors = p.communicate(input=code.encode("iso-8859-2", "replace"))
 	print(output)
