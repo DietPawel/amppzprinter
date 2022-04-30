@@ -87,8 +87,11 @@ if WEB_INTERFACE:
 		syntax = str(request.form.get('lang'))[:32] or None
 		filename = str(request.form.get('filename'))[:32] or None
 
-		if code is None:
-			make_response('<h1>Include code</h1>')
+		if not code:
+			return make_response('<h1>Include code</h1>')
+
+		if not filename:
+			return make_response('<h1>Include filename</h1>')
 
 		if ip in last_print:
 			if (datetime.now()-last_print[ip]).total_seconds()<MIN_INTERVAL:
